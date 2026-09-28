@@ -158,18 +158,25 @@ table th { color: var(--ink-soft); font-weight: 400; }
 }
 
 /* 点数ボタン（きろくページへの入口） */
-.score { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.score { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;
+  text-decoration: none; color: var(--ink-soft); }
+.score:hover { border-color: var(--sea); }
 .score-go { font-size: .68rem; color: var(--sea); font-weight: 700; letter-spacing: .02em; }
-.score[aria-pressed="true"] { background: var(--sea); border-color: var(--sea); }
-.score[aria-pressed="true"] .score-go,
-.score[aria-pressed="true"] .score-num,
-.score[aria-pressed="true"] strong { color: var(--paper); }
 
 .actions-row { display: flex; justify-content: center; gap: 8px; width: 100%; max-width: 760px; }
-.actions-row[hidden], .kiroku[hidden] { display: none; }  /* display 指定が hidden に勝たないように */
 .btn.small { font-size: .85rem; padding: 7px 12px; }
 
-.kiroku { max-width: 760px; margin: 0 auto; padding: 8px 16px 24px; line-height: 1.6; }
+.kiroku {
+  max-width: 760px; margin: 0 auto; padding: 8px 16px 24px; line-height: 1.6;
+  border-top: 1px solid var(--line); margin-top: 28px; padding-top: 4px;
+  scroll-margin-top: 130px;  /* 固定ヘッダーのぶん下げて止める（JS からのジャンプは実測して補正する） */
+}
+#main { scroll-margin-top: 96px; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.k-top { margin: 26px 0 0; text-align: center; }
+.k-top a { color: var(--sea); font-weight: 700; font-size: .9rem; text-decoration: none; }
+.k-top a:hover { text-decoration: underline; }
 .k-title { font-size: 1.45rem; margin: 20px 0 14px; }
 .k-h { font-size: 1.05rem; margin: 30px 0 8px; color: var(--sea); }
 .k-h .k-count { font-size: .9rem; color: var(--ink-soft); font-weight: 400; }
