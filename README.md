@@ -8,6 +8,11 @@
 - 「答えを見る」で正解を表示
 - 入力と記録はこの端末のブラウザに自動保存
 
+## 公開ページ
+https://kantanapp.github.io/geography-notes/
+
+スマホのブラウザでこのURLを開けばそのまま使えます（ホーム画面に追加しておくとアプリのように開けます）。
+
 ## 使い方
-`index.html` をブラウザで開くだけで動きます。
+`index.html` をブラウザで開くだけでも動きます。
 公開手順・Claude Code での開発手順は [docs/SETUP.md](docs/SETUP.md) を見てください。
