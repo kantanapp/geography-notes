@@ -403,6 +403,9 @@
   // href="#kiroku" だけだと「同じ場所への2回目のクリック」で何も起きないので、自分でスクロールする。
   $("score").addEventListener("click", (e) => { e.preventDefault(); jumpTo("kiroku"); });
 
+  // 下のボタンバーの「★ Progress」→ 下のきろくへスクロール
+  $("btn-progress").addEventListener("click", () => jumpTo("kiroku"));
+
   // 結果パネルの「★ Progress」→ 下のきろくへスクロール
   $("btn-to-kiroku").addEventListener("click", () => { $("result").close(); jumpTo("kiroku"); });
 
