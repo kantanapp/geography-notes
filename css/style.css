@@ -164,6 +164,7 @@ table th { color: var(--ink-soft); font-weight: 400; }
 .score-go { font-size: .68rem; color: var(--sea); font-weight: 700; letter-spacing: .02em; }
 
 .actions-row { display: flex; justify-content: center; gap: 8px; width: 100%; max-width: 760px; }
+.actions-row[hidden] { display: none; }  /* display 指定が hidden に勝たないように */
 .btn.small { font-size: .85rem; padding: 7px 12px; }
 
 .kiroku {
@@ -270,4 +271,42 @@ html { scroll-behavior: smooth; }
   .k-badges { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
   .k-title { font-size: 1.3rem; }
   .k-unit .btn { flex: none; }  /* 「やる」は横いっぱいに伸ばさない */
+}
+
+/* ================= 読む / れんしゅう の切りかえ ================= */
+.modebar {
+  max-width: 760px; margin: 14px auto 0; padding: 0 16px;
+  display: flex; gap: 8px;
+}
+.mode {
+  font: inherit; font-weight: 700; font-size: .95rem; line-height: 1.2;
+  flex: 1; padding: 11px 10px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--ink-soft);
+}
+.mode[aria-selected="true"] { background: var(--sea); border-color: var(--sea); color: var(--paper); }
+.mode:focus-visible { outline: 3px solid var(--land); outline-offset: 2px; }
+
+/* ================= 読みものモード ================= */
+.sheet.read { line-height: 1.95; }
+.sheet.read .p, .sheet.read .bullet { margin: 0 0 14px; }
+.read-unit { margin: 0 0 34px; }
+.read-h {
+  font-size: 1.15rem; line-height: 1.4; margin: 30px 0 12px;
+  padding-bottom: 6px; border-bottom: 2px solid var(--sea); color: var(--sea);
+}
+.read-h span { display: block; font-size: .92rem; font-weight: 400; color: var(--ink-soft); }
+.sheet.read .sec { font-size: 1rem; margin: 22px 0 6px; }
+/* 空欄に入る言葉。あとで自分で書く所が読みながら分かるように、うすく色を敷く */
+.filled {
+  font-weight: 700; color: var(--ink);
+  background: var(--sea-pale); border-radius: 4px; padding: 0 3px;
+}
+.read-end { margin: 30px 0 14px; text-align: center; line-height: 1.7; color: var(--ink-soft); }
+.read-cta { margin: 0 0 8px; text-align: center; }
+.read-cta .btn { font-size: 1rem; padding: 14px 26px; }
+
+@media (max-width: 480px) {
+  .modebar { margin-top: 10px; }
+  .mode { font-size: .9rem; padding: 10px 6px; }
+  .read-h { font-size: 1.05rem; }
 }
