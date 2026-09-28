@@ -86,7 +86,7 @@
         const width = fitWidth(val);
         return `<span class="blank" id="b-${blank.no}" data-key="${blank.key}" data-accept="${escapeHtml(JSON.stringify(blank.accepted))}">` +
           `<input type="text" value="${escapeHtml(val)}" style="width:${width}ch" ` +
-          `aria-label="空欄 ${blank.no}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next">` +
+          `aria-label="Blank ${blank.no}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next">` +
           `<span class="answer">${escapeHtml(blank.accepted[0])}</span></span>`;
       });
       if (b.type === "heading") return `<h3 class="sec">${body}</h3>`;
@@ -95,10 +95,10 @@
     }).join("");
 
     $("sheet").classList.remove("reveal");
-    $("btn-reveal").textContent = "答えを見る";
+    $("btn-reveal").textContent = "Show answers";
     $("sheet").innerHTML =
       `<h2 class="unit-title">Unit ${unit.id} - ${escapeHtml(unit.title)}</h2>` +
-      `<p class="unit-sub">空欄をタップして英語で入力。Enter で次の空欄へ進みます。</p>` + html;
+      `<p class="unit-sub">Tap a blank and type your answer. Press Enter to jump to the next one.</p>` + html;
 
     blanks().forEach((el) => { if (input(el).value) judge(el); });
     updateScore();
@@ -118,9 +118,10 @@
 
   function updateScore() {
     const s = unitStats(state.unit);
-    $("score").innerHTML = `<span class="score-num"><strong>${s.correct}</strong> / ${s.total}</span><span class="score-go">★ きろく</span>`;
+    $("score").innerHTML = `<span class="score-num"><strong>${s.correct}</strong> / ${s.total}</span><span class="score-go">★ Progress</span>`;
     $("progress-bar").style.width = `${pct(s.correct, s.total)}%`;
     renderTabs();
+    renderKiroku();
   }
 
   // ---------- 全体の集計（きろくページ用） ----------
@@ -156,20 +157,20 @@
   // ---------- ごほうびバッジ ----------
   // got: もらえたか / now・goal: あと少しを見せるための数（いらないバッジは省略）
   const BADGES = [
-    { icon: "🌱", name: "はじめの一歩", need: "答え合わせを 1回やる",
+    { icon: "🌱", name: "First step", need: "Check your answers once",
       got: (o) => o.attempts >= 1, now: (o) => o.attempts, goal: 1 },
-    { icon: "🔥", name: "10かい チャレンジ", need: "答え合わせを 10回やる",
+    { icon: "🔥", name: "10 checks", need: "Check your answers 10 times",
       got: (o) => o.attempts >= 10, now: (o) => o.attempts, goal: 10 },
-    { icon: "📅", name: "3日 れんぞく", need: "3日つづけて 答え合わせをする",
+    { icon: "📅", name: "3 day streak", need: "Check answers 3 days in a row",
       got: (o) => o.streak >= 3, now: (o) => o.streak, goal: 3 },
-    { icon: "⛰️", name: "はんぶん とうたつ", need: "ぜんぶの はんぶんを せいかいする",
+    { icon: "⛰️", name: "Halfway", need: "Get half of all the blanks right",
       got: (o) => o.correct * 2 >= o.total, now: (o) => o.correct, goal: (o) => Math.ceil(o.total / 2) }
   ].concat(DATA.units.map((u) => ({
-    icon: "🗺️", name: `Unit ${u.id} かんぺき`, need: `Unit ${u.id} を ぜんもん せいかいする`,
+    icon: "🗺️", name: `Unit ${u.id} perfect`, need: `Get every blank in Unit ${u.id} right`,
     got: (o) => o.byUnit[u.id].correct === o.byUnit[u.id].total,
     now: (o) => o.byUnit[u.id].correct, goal: (o) => o.byUnit[u.id].total
   }))).concat([
-    { icon: "🏆", name: "ぜんぶ クリア", need: "ぜんぶの もんだいを せいかいする",
+    { icon: "🏆", name: "All clear", need: "Get every blank in the whole book right",
       got: (o) => o.total > 0 && o.correct === o.total, now: (o) => o.correct, goal: (o) => o.total }
   ]);
 
@@ -182,16 +183,16 @@
 
   // 点数に合わせたほめ言葉と星（子どもが次もやりたくなるように）
   function praise(p) {
-    if (p >= 100) return { face: "🏆", word: "ぜんもん せいかい！", sub: "パーフェクト！すごい！" };
-    if (p >= 80) return { face: "🎉", word: "すごい！", sub: "コンプリートまで あと少し" };
-    if (p >= 50) return { face: "👍", word: "いいちょうし！", sub: "はんぶん こえたよ" };
-    if (p >= 20) return { face: "💪", word: "その調子！", sub: "できた分だけ 前にすすんでる" };
-    if (p > 0) return { face: "🌱", word: "スタート！", sub: "ここから ふやしていこう" };
-    return { face: "✏️", word: "さあ はじめよう", sub: "1つ 書けたら それが1歩" };
+    if (p >= 100) return { face: "🏆", word: "Perfect!", sub: "Every blank correct" };
+    if (p >= 80) return { face: "🎉", word: "Great job!", sub: "Almost a complete unit" };
+    if (p >= 50) return { face: "👍", word: "Nice work!", sub: "You are past halfway" };
+    if (p >= 20) return { face: "💪", word: "Keep going!", sub: "Every blank you fill is progress" };
+    if (p > 0) return { face: "🌱", word: "You have started!", sub: "Build it up from here" };
+    return { face: "✏️", word: "Let's begin", sub: "One blank is one step" };
   }
   function stars(p) {
     const n = p >= 100 ? 3 : p >= 80 ? 2 : p >= 50 ? 1 : 0;
-    return `<span class="stars" aria-label="星 ${n} つ">${"★".repeat(n)}${"☆".repeat(3 - n)}</span>`;
+    return `<span class="stars" aria-label="${n} out of 3 stars">${"★".repeat(n)}${"☆".repeat(3 - n)}</span>`;
   }
 
   function openResult() {
@@ -203,19 +204,19 @@
     const missList = s.misses.length
       ? `<ul class="misses">${s.misses.map((m) =>
           `<li><button type="button" data-jump="${m.no}"><span class="no">(${m.no})</span>` +
-          `<span class="yours${m.value ? "" : " empty"}">${m.value ? escapeHtml(m.value) : "未回答"}</span>` +
+          `<span class="yours${m.value ? "" : " empty"}">${m.value ? escapeHtml(m.value) : "left blank"}</span>` +
           `<span class="right">${escapeHtml(m.accepted[0])}</span></button></li>`).join("")}</ul>`
-      : `<p class="allclear">🏆 ぜんぶ せいかい！</p>`;
+      : `<p class="allclear">🏆 Everything correct!</p>`;
 
-    $("result-title").textContent = `Unit ${unit.id} の けっか`;
+    $("result-title").textContent = `Unit ${unit.id} results`;
     $("result-body").innerHTML =
       `<div class="cheer"><div class="cheer-face">${pr.face}</div>` +
       `<div><p class="cheer-word">${pr.word}</p><p class="cheer-sub">${pr.sub}</p></div></div>` +
       `<p class="big">${s.correct}<span> / ${s.total}（${p}%）</span> ${stars(p)}</p>` +
-      `<p class="counts"><span>せいかい <b class="ok">${s.correct}</b></span>` +
-      `<span>まちがい <b class="ng">${s.wrong}</b></span><span>まだ <b>${s.empty}</b></span></p>` +
-      (s.misses.length ? `<h3>なおすところ（タップでその空欄へ）</h3>` : "") + missList +
-      `<p class="result-foot">くわしい きろくは <b>★ きろく</b> で見られるよ</p>`;
+      `<p class="counts"><span>Correct <b class="ok">${s.correct}</b></span>` +
+      `<span>Wrong <b class="ng">${s.wrong}</b></span><span>Blank <b>${s.empty}</b></span></p>` +
+      (s.misses.length ? `<h3>Fix these (tap one to jump to that blank)</h3>` : "") + missList +
+      `<p class="result-foot">Your full record is further down the page, under <b>★ Progress</b></p>`;
     $("result").showModal();
   }
 
@@ -240,13 +241,13 @@
 
   function heroMsg(o) {
     const p = pct(o.correct, o.total);
-    if (o.total === 0) return "さあ はじめよう！";
-    if (p >= 100) return "ぜんぶ クリア！ほんとうに すごい！";
-    if (p >= 80) return `コンプリートまで あと ${o.total - o.correct} もん！`;
-    if (p >= 50) return "はんぶんを こえたよ。このちょうし！";
-    if (p >= 20) return "いいペース。つづけるほど かんたんになる！";
-    if (p > 0) return "スタートした！ここから ふやしていこう";
-    return "さあ はじめよう！1もんでも 書けたら 1歩";
+    if (o.total === 0) return "Let's get started!";
+    if (p >= 100) return "All clear! That is really something.";
+    if (p >= 80) return `Only ${o.total - o.correct} blanks left to finish everything!`;
+    if (p >= 50) return "Past halfway. Keep it up!";
+    if (p >= 20) return "Good pace. It gets easier the more you do.";
+    if (p > 0) return "You have started! Build it up from here.";
+    return "Let's get started! One blank is one step.";
   }
 
   // がんばりグラフ（直近の答え合わせの せいかい率）
@@ -256,7 +257,7 @@
   function chart() {
     const rows = state.history.slice(-CHART_MAX).map((h) => ({ ...h, p: pct(h.correct, h.total) }));
     if (!rows.length) {
-      return `<p class="k-empty">まだ グラフが ないよ。<br>「答え合わせ」を おすと ここに たまっていく。</p>`;
+      return `<p class="k-empty">No chart yet.<br>Press <b>Check answers</b> and it will start filling up here.</p>`;
     }
     const W = 320, H = 150, L = 30, R = 8, T = 20, B = 24;
     const pw = W - L - R, ph = H - T - B;
@@ -282,14 +283,14 @@
         ? `<text class="c-val" x="${cx}" y="${top - 6}" text-anchor="middle">${r.p}%</text>` : "";
       return (d ? `<path class="c-bar" d="${d}"></path>` : "") + label +
         `<rect class="c-hit" x="${L + band * i}" y="${T}" width="${band}" height="${ph}" tabindex="0" role="button"` +
-        ` data-tip="${escapeHtml(`${formatDate(r.at)}　Unit ${r.unit}　${r.correct}/${r.total}（${r.p}%）`)}"></rect>`;
+        ` data-tip="${escapeHtml(`${formatDate(r.at)} · Unit ${r.unit} · ${r.correct}/${r.total} (${r.p}%)`)}"></rect>`;
     }).join("");
 
     const ends = `<text class="c-axis" x="${L}" y="${H - 6}">${formatDate(rows[0].at).split(" ")[0]}</text>` +
-      (rows.length > 1 ? `<text class="c-axis" x="${W - R}" y="${H - 6}" text-anchor="end">さいしん</text>` : "");
+      (rows.length > 1 ? `<text class="c-axis" x="${W - R}" y="${H - 6}" text-anchor="end">latest</text>` : "");
 
     return `<div class="chart-wrap"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img"` +
-      ` aria-label="答え合わせのせいかい率のグラフ。数字は下のきろくの表で読めます。">` +
+      ` aria-label="Your score each time you checked answers. The same numbers are in the table below.">` +
       grid + bars + ends + `</svg><div class="chart-tip" id="chart-tip" hidden></div></div>`;
   }
 
@@ -303,9 +304,9 @@
       const left = s.total - s.correct;
       return `<div class="k-unit${up === 100 ? " done" : ""}">${ring(up, 64, 8)}` +
         `<div class="k-unit-body"><p class="k-unit-name">Unit ${u.id}${up === 100 ? " 🏆" : ""}</p>` +
-        `<p class="k-unit-num">${s.correct} / ${s.total} もん</p>` +
-        `<p class="k-unit-left">${left ? `あと ${left} もん` : "かんぺき！"}</p></div>` +
-        `<button type="button" class="btn small" data-go="${u.id}">やる</button></div>`;
+        `<p class="k-unit-num">${s.correct} / ${s.total} blanks</p>` +
+        `<p class="k-unit-left">${left ? `${left} to go` : "Complete!"}</p></div>` +
+        `<button type="button" class="btn small" data-go="${u.id}">Go</button></div>`;
     }).join("");
 
     const gotCount = BADGES.filter((b) => b.got(o)).length;
@@ -315,7 +316,7 @@
       const now = Math.min(b.now(o), goal);
       return `<div class="k-badge${got ? " got" : ""}"><span class="k-badge-icon">${b.icon}</span>` +
         `<span class="k-badge-name">${escapeHtml(b.name)}</span>` +
-        (got ? `<span class="k-badge-got">ゲット！</span>`
+        (got ? `<span class="k-badge-got">Earned!</span>`
              : `<span class="k-badge-need">${escapeHtml(b.need)}</span>` +
                `<span class="k-badge-bar"><i style="width:${pct(now, goal)}%"></i></span>` +
                `<span class="k-badge-now">${now} / ${goal}</span>`) + `</div>`;
@@ -323,40 +324,40 @@
 
     const hist = state.history.slice().reverse().slice(0, 20);
     const histHtml = hist.length
-      ? `<div class="table-wrap"><table class="history"><caption class="sr-only">答え合わせのきろく</caption>` +
-        `<tr><th>いつ</th><th>Unit</th><th>せいかい</th><th>せいかい率</th></tr>` +
+      ? `<div class="table-wrap"><table class="history"><caption class="sr-only">Every time you checked your answers</caption>` +
+        `<tr><th>When</th><th>Unit</th><th>Correct</th><th>Score</th></tr>` +
         hist.map((h) => `<tr><td>${formatDate(h.at)}</td><td>${h.unit}</td><td>${h.correct}/${h.total}</td>` +
           `<td><span class="bar"><i style="width:${pct(h.correct, h.total)}%"></i></span>${pct(h.correct, h.total)}%</td></tr>`).join("") +
         `</table></div>`
-      : `<p class="k-empty">まだ きろくが ないよ。「答え合わせ」を おすと 1つずつ たまっていく。</p>`;
+      : `<p class="k-empty">No records yet. Press <b>Check answers</b> and each try is saved here.</p>`;
 
     $("kiroku").innerHTML =
-      `<h2 class="k-title">★ きろく</h2>` +
+      `<h2 class="k-title" id="k-title">★ Progress</h2>` +
       `<section class="k-hero">${ring(p, 104, 12)}` +
-      `<div><p class="k-hero-num">${o.correct}<span> / ${o.total} もん せいかい</span></p>` +
+      `<div><p class="k-hero-num">${o.correct}<span> / ${o.total} blanks correct</span></p>` +
       `<p class="k-hero-msg">${escapeHtml(heroMsg(o))}</p>` +
-      `<p class="k-hero-sub">答え合わせ ${o.attempts} かい ・ やった日 ${o.days} 日` +
-      `${o.streak >= 2 ? ` ・ さいこう ${o.streak} 日れんぞく` : ""}</p></div></section>` +
-      `<h3 class="k-h">Unit ごとの すすみぐあい</h3><div class="k-units">${unitCards}</div>` +
-      `<h3 class="k-h">ごほうび　<span class="k-count">${gotCount} / ${BADGES.length}</span></h3>` +
+      `<p class="k-hero-sub">Checked ${o.attempts} ${o.attempts === 1 ? "time" : "times"} · ` +
+      `${o.days} ${o.days === 1 ? "day" : "days"} of practice` +
+      `${o.streak >= 2 ? ` · best streak ${o.streak} days` : ""}</p></div></section>` +
+      `<h3 class="k-h">Each unit</h3><div class="k-units">${unitCards}</div>` +
+      `<h3 class="k-h">Rewards <span class="k-count">${gotCount} / ${BADGES.length}</span></h3>` +
       `<div class="k-badges">${badges}</div>` +
-      `<h3 class="k-h">がんばりグラフ</h3>` +
-      `<p class="k-sub">答え合わせした ときの せいかい率（右が あたらしい）</p>${chart()}` +
-      `<h3 class="k-h">答え合わせの きろく</h3>${histHtml}`;
+      `<h3 class="k-h">Progress chart</h3>` +
+      `<p class="k-sub">Your score each time you checked answers (newest on the right)</p>${chart()}` +
+      `<h3 class="k-h">Your record</h3>${histHtml}` +
+      `<p class="k-top"><a href="#main">&uarr; Back to the questions</a></p>`;
   }
 
-  // ---------- 画面の切りかえ ----------
-  function showView(name) {
-    const k = name === "kiroku";
-    if (k) renderKiroku();
-    $("sheet").hidden = k;
-    $("kiroku").hidden = !k;
-    $("actions-quiz").hidden = k;
-    $("actions-kiroku").hidden = !k;
-    $("score").setAttribute("aria-pressed", String(k));
-    window.scrollTo(0, 0);
+  // きろくは問題の下にいつも出している（別画面にしない）ので、
+  // 点数が動いたら その場で描きなおす。
+  // 上の固定バーの高さぶんだけ手前で止める（スマホは2段になって高くなるので実測する）
+  function jumpTo(id) {
+    const el = $(id);
+    if (!el) return;
+    const bar = document.querySelector(".topbar");
+    const top = el.getBoundingClientRect().top + window.scrollY - (bar ? bar.offsetHeight : 0) - 8;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }
-  const inKiroku = () => !$("kiroku").hidden;
 
   // ---------- 操作 ----------
   $("tabs").addEventListener("click", (e) => {
@@ -364,7 +365,7 @@
     if (!t) return;
     state.unit = t.dataset.unit;
     save(); renderUnit();
-    showView("quiz");
+    window.scrollTo(0, 0);
   });
 
   $("sheet").addEventListener("input", (e) => {
@@ -398,17 +399,20 @@
     openResult();
   });
 
-  // 点数ボタンは「きろくページ」への入口（答え合わせの結果とは別の画面）
-  $("score").addEventListener("click", () => showView(inKiroku() ? "quiz" : "kiroku"));
-  $("btn-back").addEventListener("click", () => showView("quiz"));
-  $("btn-to-kiroku").addEventListener("click", () => { $("result").close(); showView("kiroku"); });
+  // 上の点数（★ Progress）→ 下のきろくへスクロール。
+  // href="#kiroku" だけだと「同じ場所への2回目のクリック」で何も起きないので、自分でスクロールする。
+  $("score").addEventListener("click", (e) => { e.preventDefault(); jumpTo("kiroku"); });
 
-  // きろくページの「やる」ボタン → その Unit の問題へ
+  // 結果パネルの「★ Progress」→ 下のきろくへスクロール
+  $("btn-to-kiroku").addEventListener("click", () => { $("result").close(); jumpTo("kiroku"); });
+
+  // きろくの「Go」ボタン → その Unit の問題へ（上にもどる）
   $("kiroku").addEventListener("click", (e) => {
+    if (e.target.closest(".k-top a")) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
     const go = e.target.closest("[data-go]");
     if (!go) return;
     state.unit = go.dataset.go;
-    save(); renderUnit(); showView("quiz");
+    save(); renderUnit(); window.scrollTo(0, 0);
   });
 
   // がんばりグラフの吹き出し（タップ・マウス・キーボードのどれでも出す）
@@ -442,15 +446,14 @@
     blanks().forEach(judge);
     updateScore();
     const on = $("sheet").classList.toggle("reveal");
-    $("btn-reveal").textContent = on ? "答えを隠す" : "答えを見る";
+    $("btn-reveal").textContent = on ? "Hide answers" : "Show answers";
   });
 
   $("btn-reset").addEventListener("click", () => {
-    if (!confirm(`Unit ${state.unit} の入力をすべて消しますか？（答え合わせの記録は残ります）`)) return;
+    if (!confirm(`Clear everything you typed in Unit ${state.unit}?\nYour check-answer records are kept.`)) return;
     Object.keys(state.answers).forEach((k) => { if (k.startsWith(state.unit + "#")) delete state.answers[k]; });
     save(); renderUnit();
   });
 
   renderUnit();
-  showView("quiz");
 })();
