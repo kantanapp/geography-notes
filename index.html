@@ -19,13 +19,22 @@
     <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
   </header>
 
+  <nav class="modebar" id="modebar" aria-label="Read or practice">
+    <button type="button" class="mode" data-mode="read" aria-selected="true">📖 Read</button>
+    <button type="button" class="mode" data-mode="quiz" aria-selected="false">✏️ Practice</button>
+  </nav>
+
   <main id="main">
     <div class="sheet" id="sheet"></div>
     <section class="kiroku" id="kiroku" aria-labelledby="k-title"></section>
   </main>
 
   <footer class="actions">
-    <div class="actions-row">
+    <div class="actions-row" id="actions-read">
+      <button type="button" id="btn-start" class="btn primary">✏️ Start practice</button>
+      <button type="button" id="btn-progress-read" class="btn">★ Progress</button>
+    </div>
+    <div class="actions-row" id="actions-quiz" hidden>
       <button type="button" id="btn-check" class="btn primary">Check answers</button>
       <button type="button" id="btn-reveal" class="btn">Show answers</button>
       <button type="button" id="btn-progress" class="btn">★ Progress</button>

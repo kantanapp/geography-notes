@@ -17,7 +17,7 @@
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* 保存できなくても動かす */ }
   }
-  const state = Object.assign({ unit: DATA.units[0].id, answers: {}, history: [] }, load());
+  const state = Object.assign({ unit: DATA.units[0].id, mode: "read", answers: {}, history: [] }, load());
 
   // ---------- 問題の分解（描画せずに採点するため） ----------
   // unit.id -> [{ key, no, accepted:[...] }]
@@ -74,6 +74,35 @@
     }).join("");
   }
 
+  // ---------- 読みものモード ----------
+  // 空欄に答えを入れた状態で、Unit 1.1〜1.3 を通しで読めるようにする。
+  // 答えは data/units.js の先頭の答え（正式な答え）をそのまま置く。
+  function unitProse(unit) {
+    const list = BLANKS[unit.id];
+    let i = 0;
+    return unit.blocks.map((b) => {
+      const body = escapeHtml(b.text).replace(/\{([^}]+)\}/g, () =>
+        `<b class="filled">${escapeHtml(list[i++].accepted[0])}</b>`);
+      if (b.type === "heading") return `<h4 class="sec">${body}</h4>`;
+      if (b.type === "bullet") return `<p class="bullet">${body}</p>`;
+      return `<p class="p">${body}</p>`;
+    }).join("");
+  }
+
+  function renderRead() {
+    $("sheet").className = "sheet read";
+    $("sheet").innerHTML =
+      `<h2 class="unit-title">Geography Notes</h2>` +
+      `<p class="unit-sub">Read it through first. The words in <b class="filled">bold</b> are the ones you fill in later.</p>` +
+      DATA.units.map((u) =>
+        `<section class="read-unit" id="u-${u.id.replace(".", "-")}">` +
+        `<h3 class="read-h">Unit ${u.id}<span> ${escapeHtml(u.title)}</span></h3>` +
+        unitProse(u) + `</section>`).join("") +
+      `<p class="read-end">That's all of it.<br>Ready to try filling the blanks yourself?</p>` +
+      `<p class="read-cta"><button type="button" class="btn primary" id="btn-start-2">✏️ Start practice</button></p>`;
+    updateScore();
+  }
+
   function renderUnit() {
     const unit = DATA.units.find((u) => u.id === state.unit) || DATA.units[0];
     const list = BLANKS[unit.id];
@@ -94,7 +123,7 @@
       return `<p class="p">${body}</p>`;
     }).join("");
 
-    $("sheet").classList.remove("reveal");
+    $("sheet").className = "sheet";
     $("btn-reveal").textContent = "Show answers";
     $("sheet").innerHTML =
       `<h2 class="unit-title">Unit ${unit.id} - ${escapeHtml(unit.title)}</h2>` +
@@ -359,10 +388,41 @@
     window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }
 
+  // ---------- 読む / れんしゅう の切りかえ ----------
+  function render() { if (state.mode === "read") renderRead(); else renderUnit(); }
+
+  function setMode(mode, opts) {
+    state.mode = mode; save();
+    const read = mode === "read";
+    Array.from($("modebar").children).forEach((b) =>
+      b.setAttribute("aria-selected", String(b.dataset.mode === mode)));
+    $("actions-read").hidden = !read;
+    $("actions-quiz").hidden = read;
+    render();
+    if (!opts || !opts.keepScroll) window.scrollTo(0, 0);
+  }
+
   // ---------- 操作 ----------
+  $("modebar").addEventListener("click", (e) => {
+    const b = e.target.closest(".mode");
+    if (b && b.dataset.mode !== state.mode) setMode(b.dataset.mode);
+  });
+
+  $("btn-start").addEventListener("click", () => setMode("quiz"));
+  $("btn-progress-read").addEventListener("click", () => jumpTo("kiroku"));
+  $("sheet").addEventListener("click", (e) => {
+    if (e.target.closest("#btn-start-2")) setMode("quiz");
+  });
   $("tabs").addEventListener("click", (e) => {
     const t = e.target.closest(".tab");
     if (!t) return;
+    // 読みものモードでは その Unit の見出しへスクロールするだけ。
+    // ただし「今どこを読んでいるか」は覚えておいて、れんしゅうに移った時そこから始める。
+    if (state.mode === "read") {
+      state.unit = t.dataset.unit; save(); renderTabs();
+      jumpTo("u-" + t.dataset.unit.replace(".", "-"));
+      return;
+    }
     state.unit = t.dataset.unit;
     save(); renderUnit();
     window.scrollTo(0, 0);
@@ -415,7 +475,9 @@
     const go = e.target.closest("[data-go]");
     if (!go) return;
     state.unit = go.dataset.go;
-    save(); renderUnit(); window.scrollTo(0, 0);
+    save();
+    if (state.mode === "read") { setMode("quiz"); return; }
+    renderUnit(); window.scrollTo(0, 0);
   });
 
   // がんばりグラフの吹き出し（タップ・マウス・キーボードのどれでも出す）
@@ -458,5 +520,5 @@
     save(); renderUnit();
   });
 
-  renderUnit();
+  setMode(state.mode === "quiz" ? "quiz" : "read", { keepScroll: true });
 })();
