@@ -150,3 +150,117 @@ table th { color: var(--ink-soft); font-weight: 400; }
 .muted { color: var(--ink-soft); font-size: .9rem; }
 
 .result-head .btn { flex: none; padding: 8px 14px; }
+
+/* ================= きろくページ ================= */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* 点数ボタン（きろくページへの入口） */
+.score { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.score-go { font-size: .68rem; color: var(--sea); font-weight: 700; letter-spacing: .02em; }
+.score[aria-pressed="true"] { background: var(--sea); border-color: var(--sea); }
+.score[aria-pressed="true"] .score-go,
+.score[aria-pressed="true"] .score-num,
+.score[aria-pressed="true"] strong { color: var(--paper); }
+
+.actions-row { display: flex; justify-content: center; gap: 8px; width: 100%; max-width: 760px; }
+.actions-row[hidden], .kiroku[hidden] { display: none; }  /* display 指定が hidden に勝たないように */
+.btn.small { font-size: .85rem; padding: 7px 12px; }
+
+.kiroku { max-width: 760px; margin: 0 auto; padding: 8px 16px 24px; line-height: 1.6; }
+.k-title { font-size: 1.45rem; margin: 20px 0 14px; }
+.k-h { font-size: 1.05rem; margin: 30px 0 8px; color: var(--sea); }
+.k-h .k-count { font-size: .9rem; color: var(--ink-soft); font-weight: 400; }
+.k-sub { margin: 0 0 8px; font-size: .85rem; color: var(--ink-soft); line-height: 1.5; }
+.k-empty { margin: 0; padding: 18px 14px; border: 1px dashed var(--line); border-radius: 12px;
+  color: var(--ink-soft); font-size: .92rem; line-height: 1.7; text-align: center; }
+
+/* ドーナツ（進みぐあい） */
+.ring { flex: none; }
+.ring-track { stroke: var(--sea-pale); }
+.ring-fill { stroke: var(--land); stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+.ring-text { fill: var(--ink); font-family: var(--font); font-weight: 700; font-size: 20px;
+  font-variant-numeric: tabular-nums; }
+.k-unit .ring-text { font-size: 17px; }
+
+/* ヒーロー（ぜんぶで何問できたか） */
+.k-hero {
+  display: flex; align-items: center; gap: 18px;
+  padding: 18px 16px; border: 1px solid var(--line); border-radius: 16px;
+  background: var(--land-pale);
+}
+.k-hero-num { margin: 0; font-size: 2.6rem; font-weight: 700; line-height: 1.1;
+  color: var(--land); font-variant-numeric: tabular-nums; }
+.k-hero-num span { font-size: .95rem; color: var(--ink-soft); font-weight: 400; }
+.k-hero-msg { margin: 6px 0 0; font-weight: 700; font-size: 1rem; line-height: 1.5; }
+.k-hero-sub { margin: 4px 0 0; font-size: .82rem; color: var(--ink-soft); line-height: 1.5; }
+
+/* Unit ごとのカード */
+.k-units { display: grid; gap: 10px; }
+.k-unit {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px;
+}
+.k-unit.done { border-color: var(--land); background: var(--land-pale); }
+.k-unit-body { flex: 1; min-width: 0; }
+.k-unit-name { margin: 0; font-weight: 700; line-height: 1.3; }
+.k-unit-num { margin: 2px 0 0; font-size: .9rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.k-unit-left { margin: 2px 0 0; font-size: .85rem; color: var(--land); font-weight: 700; }
+
+/* ごほうびバッジ */
+.k-badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.k-badge {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;
+  padding: 14px 10px; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--paper); line-height: 1.35;
+}
+.k-badge-icon { font-size: 1.9rem; filter: grayscale(1); opacity: .45; }
+.k-badge-name { font-weight: 700; font-size: .9rem; color: var(--ink-soft); }
+.k-badge-need { font-size: .74rem; color: var(--ink-soft); }
+.k-badge-bar { display: block; width: 84px; height: 6px; margin-top: 5px;
+  background: var(--sea-pale); border-radius: 3px; overflow: hidden; }
+.k-badge-bar i { display: block; height: 100%; background: var(--sea); }
+.k-badge-now { font-size: .74rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.k-badge.got { border-color: var(--land); background: var(--land-pale); }
+.k-badge.got .k-badge-icon { filter: none; opacity: 1; }
+.k-badge.got .k-badge-name { color: var(--ink); }
+.k-badge-got { font-size: .76rem; font-weight: 700; color: var(--land); }
+
+/* がんばりグラフ */
+.chart-wrap { position: relative; max-width: 460px; }  /* 拡大しすぎて棒が太くならないように */
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.c-grid { stroke: var(--line); stroke-width: 1; }
+.c-bar { fill: var(--land); }
+.c-axis { fill: var(--ink-soft); font-family: var(--font); font-size: 10px; }
+.c-val { fill: var(--ink); font-family: var(--font); font-size: 11px; font-weight: 700;
+  font-variant-numeric: tabular-nums; }
+.c-hit { fill: transparent; cursor: pointer; }
+.c-hit:hover { fill: var(--sea-pale); fill-opacity: .55; }
+.c-hit:focus-visible { outline: 2px solid var(--sea); }
+.chart-tip {
+  position: absolute; top: -4px; z-index: 2; pointer-events: none;
+  background: var(--ink); color: var(--paper);
+  padding: 5px 9px; border-radius: 8px; font-size: .78rem; line-height: 1.4; white-space: nowrap;
+}
+
+/* ================= 答え合わせパネル（子ども向け） ================= */
+.result-head-btns { display: flex; gap: 6px; flex: none; }
+.cheer { display: flex; align-items: center; gap: 12px; margin: 14px 0 4px;
+  padding: 12px 14px; border-radius: 14px; background: var(--land-pale); }
+.cheer-face { font-size: 2.2rem; line-height: 1; }
+.cheer-word { margin: 0; font-size: 1.15rem; font-weight: 700; line-height: 1.3; }
+.cheer-sub { margin: 2px 0 0; font-size: .85rem; color: var(--ink-soft); line-height: 1.4; }
+.stars { color: #E0A32E; letter-spacing: .06em; font-size: 1.3rem; }
+.allclear { margin: 10px 0 0; padding: 16px; text-align: center; font-weight: 700;
+  border-radius: 12px; background: var(--land-pale); color: var(--land); }
+.result-foot { margin: 18px 0 0; font-size: .82rem; color: var(--ink-soft); text-align: center; line-height: 1.5; }
+
+@media (max-width: 480px) {
+  .k-hero { gap: 12px; padding: 14px 12px; }
+  .k-hero-num { font-size: 2.1rem; }
+  .k-badges { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
+  .k-title { font-size: 1.3rem; }
+  .k-unit .btn { flex: none; }  /* 「やる」は横いっぱいに伸ばさない */
+}
